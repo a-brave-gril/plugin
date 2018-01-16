@@ -1,0 +1,186 @@
+<style>
+	body{
+		position: relative;
+	}
+	.btn{
+	    background-color: #fff;
+	    border: 1px solid #eee;
+	    padding: 6px 15px;
+	    border-radius: 5px;
+	}
+	.hide{
+		display: none!important;
+	}
+	.btn-base{
+		background-color: #3385ff;
+		color: #fff;
+	}
+	.btn-primary{
+		background-color: #fff;
+	}
+	#moael-container{
+	    position: absolute;
+	    top: 0;
+	    bottom: 0;
+	    left: 0;
+	    right: 0;
+	    background: rgba(0,0,0,0.3);
+	}
+	.modal-content{
+        width: 30%;
+	    margin: 8% auto;
+	    border: 1px solid #fff;
+	    border-radius: 6px;
+	    background-color: #fff;
+	    position: relative;
+	}
+	.close{
+		position: absolute;
+	    right: 2px;
+	    border: none;
+	}
+	.modal-title{
+	    padding: 6px 0 6px 10px;
+    	border-bottom: 1px solid #eee;
+	}
+	.modal-body{
+	    padding: 20px 10px;
+	    border-bottom: 1px solid #eee;
+	    margin-bottom: 15px;
+	}
+	.modal-footer{
+		text-align: center;
+	}
+</style>
+<div>
+	<button class="show btn btn-base">点我出现弹窗</button>
+	<!-- 弹窗样式 结构不要变 id值也不要变 -->
+	<div id="moael-container" class="hide">
+		<div class="modal-content hide">
+			<button class="close btn btn-primary">X</button>
+			<div class="modal-title">
+				系统提示
+			</div>
+			<div class="modal-body">
+				弹窗
+			</div>
+			<div class="modal-footer">
+				<button class="btn-submit btn btn-base">是</button>
+				<button class="btn-submit btn btn-primary">否</button>
+			</div>
+		</div>
+	</div>
+
+</div>
+<script src="http://cdn.static.runoob.com/libs/jquery/1.10.2/jquery.min.js"></script>
+<script>
+	+function($){
+
+		//找到点击元素的祖先元素，以便对其操作
+		var findParent = function(e){
+
+			if(!e || e.length == 0) return;
+
+			var $this = $(e.target);
+			var parent = $this.closest(".modal-content");
+			var ancestors = $this.closest('#moael-container');
+			parent.addClass("hide");
+			ancestors.addClass("hide");
+		}
+
+		// 定义点击“X”关闭弹窗事件
+		Modal.prototype.close = function(e){
+			findParent(e);
+		}
+
+		// 定义点击“确定”或者“取消”事件，可以传callback
+		Modal.prototype.cancel = function(e){
+			findParent(e);
+
+			if(typeof e.data == 'string') return
+
+			e.data.callback();
+		}
+
+		// 定义打开弹窗事件
+		Modal.prototype.open = function(el){
+
+			$this = $(el);
+			var parent = $this.closest('#moael-container');
+
+			if($this.length == 0) return;
+
+			if($this.siblings().length != 0 && !$this.siblings().hasClass("hide")) return;
+
+			parent.removeClass("hide");
+
+			$this.removeClass("hide"); 
+		}
+
+		// 为找到的元素绑定事件
+		Modal.prototype.addEvent = function(el,options){
+
+			if(options && typeof options == "string"){
+				this[options](el);
+			}else if(options.type){
+				var type = options.type;
+				this[type](el);
+			}else{
+				if($(el).length == 0 || !$(el).hasClass(hide)) return
+				this.open(el);
+			}
+
+		}
+
+		// 定义modal构造函数
+		function Modal(el,options){
+			var $this = $(el);
+			el = $(el);
+			event.stopPropagation();
+			$this.on("click",".close",this.close);
+			$this.on("click",".btn-submit",options,this.cancel);
+			this.addEvent(el,options);
+		}
+
+		function Plugin(options){
+			return this.each(function(){
+				var $this = $(this);
+				var data  = $this.data("modal");
+
+				if(!data) {
+					$this.data("modal",data = new Modal($this,options))
+				}else{
+					data.addEvent($this,options);
+				}
+
+				if(typeof options == 'string') {
+					data[options].call($this)
+				}
+
+			});
+		}
+
+		// 绑定事件
+		$.fn.modal = Plugin;
+		$.fn.modal.Constructor = Modal;
+		
+	}(jQuery)
+
+
+
+	
+	/*
+	* 调用插件  参数介绍
+	* type：定义弹窗是打开还是关闭
+	* callback: 定义当点击“确定”或者“取消时” 执行的函数
+	*/
+	$('.show').on("click",function(){
+		$('.modal-content').modal({
+			type: 'open', 
+			callback: function(){
+				alert("插件测试");
+			}
+		});
+	});
+	
+</script>
