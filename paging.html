@@ -1,50 +1,50 @@
 <style>
 	ul,
-	li{
+	li {
 	    list-style-type: none;
 	}
-	li{
+	li {
 		float: left;
 		padding: 6px 10px;
 		border: 1px solid #ccc;
 	}
-	select{
+	select {
 		border: none;
 	}
-	input{
+	input {
 		border: none;
 	}
-	a{
+	a {
 	    text-decoration: none;
 	}
-	.m-20{
+	.m-20 {
 		margin: 0 10px;
 	}
-	.hide{
+	.hide {
 		display: none!important;
 	}
 	.clearfix:after,
-	.clearfix:before{
+	.clearfix:before {
 		display: table;	
 		content: "";
 		clear: both;
 	}
-	.r-left{
+	.r-left {
 		float: 	left;
 	}
-	.paging-container{
+	.paging-container {
 	    font-size: 14px;
 	}
-	.choose-num li .total{
+	.choose-num li .total {
 	    border-radius: 3px 0 0 3px;
 	}
-	.jump-num{
+	.jump-num {
 		width: 30px;
 	}
-	.num li.active{
+	.num li.active {
 		background: #ccc;
 	}
-	.num li.active a{
+	.num li.active a {
 		color: #fff;
 	}
 </style>
@@ -52,9 +52,9 @@
 	<div class="paging-container">
 		<div class="choose-num m-20 clearfix r-left">
 			<ul>
-				<li><span class="total">共45页</span></li>
+				<li><span id="total-page" class="total">共45页</span></li>
 				<li>
-					<select name="" id="pagesize">
+					<select id="pagesize" name="">
 						
 					</select>
 				</li>
@@ -81,20 +81,38 @@
 	// 是否展示输入框
 	// 是否展示总共页数
 	// 添加事件
+
+	/**
+	  * 函数描述		
+	  * 		
+	  * @param {string} {
+	  *						pagingNum: [5, 10, 20, 50, 100], // 设置每页的个数
+	  *						total: 0,                        // 总页数
+	  *						page: 1,						 // 当前页
+	  *						pageSize: 10,			 		 // 每页个数
+	  *						isShowInp: true,				 // 是否显示输入框
+	  *						isShowPagesize: true,			 // 是否显示分页个数设置
+	  *						showNumber: 4,					 // 
+	  *						callb0ack: function(){			 // 设置回调函数
+	  *	
+	  *						}
+	  *					}		
+	  * 		
+	*/
 	var activeNum = '';
 	var options = {
-		pagingNum: [5, 10, 20, 50, 100],
-		total: 0,
-		page: 1,
-		pageSize: 10,
-		isShowInp: true,
-		isShowPagesize: true,
-		isShowNum: true,
-		showNumber: 4,
+		pagingNum: [5, 10, 20, 50, 100], // 设置每页的个数
+		total: 0,                        // 总页数
+		page: 1,						 // 当前页
+		pageSize: 10,			 		 // 每页个数
+		isShowInp: true,				 // 是否显示输入框
+		isShowPagesize: true,			 // 是否显示分页个数设置
+		number: 4,					     // 前后显示页数
 		callback: function(){
 
 		}	
 	}
+
 	// 定位active
 	var addClassActive = function(target,currentPage){
 		for(var i = 0; i < target.length; i ++){
@@ -104,10 +122,11 @@
 			}
 		}
 	}
+
 	// 分页显示设置
 	var showNumber = function(number,currentPage){
 		var html = '<li><a href="#" data-type="pre"><</a></li>';
-		var num = number ? number : options.showNumber;
+		var num = number ? number : options.number;
 		var currentPage = currentPage ? currentPage : 1;
 		var totalPage = Math.ceil(options.total / options.pageSize);
 		var target = $(".num").find("ul");
@@ -119,7 +138,7 @@
 					html += '<li><a href="#">'+(i + 1)+'</a></li>';
 				}else if(i > totalPage - num){
 					html += '<li><a href="#">'+(i + 1)+'</a></li>';
-				}else if(i >= currentPage - 1 - num && i < currentPage + 1 + num){
+				}else if(i >= currentPage - 1 - options.number && i < currentPage  + options.number){
 					html += '<li><a href="#">'+(i + 1)+'</a></li>';
 					isShow = false;
 				}else{
@@ -199,6 +218,7 @@
 
 		options.callback();
 	};
+
 	// 生成分页size
 	var generatePagesize = function(options){
 		var html = "";
@@ -207,25 +227,32 @@
 		}
 		$("#pagesize").append(html);
 	}
+
 	// 是否展示分页条数设置
 	Paging.prototype.showPagesize = function(el){
 		var $this = $(el);
 		var value = '';
+		var totalPage = '';
+		var target = $("#total-page");
 		if(!options || !options.isShowPagesize) {
 			$this.find(".choose-num").addClass("hide");
 			return;
 		}
 		generatePagesize(options);
+		totalPage = Math.ceil(options.total / options.pageSize);
+		target.text("共"+totalPage+"页");
 		$this.on("change",".choose-num select",options,function(){
 			// 改变每页页数事件
 			value = $(this).val() - 0;
 			options.pageSize = value;
+			totalPage = Math.ceil(options.total / options.pageSize);
+			target.text("共"+totalPage+"页");
 			showNumber();
-
 			if(!options || !options.callback) return
 
 			options.callback();
 		});
+
 	}
 	
 	// 是否展示输入框
@@ -242,7 +269,6 @@
 			var parent = $(e.target).closest("div").find("li");
 			var page   = Math.ceil(options.total / options.pageSize);
 			var value  = parent.find("input").val() - 0;
-			var t = $(".num li");
 			activeNum = value;
 			if(!value || value == 0) return
 			if(value > page) activeNum = page
@@ -264,12 +290,11 @@
 			
 	}
 
-	// 寻找DOM 
 	function Plugin(option){
 		return this.each(function(){
 			var $this = $(this);
 			var data  = $this.data("paging");
-			    $.extend(true,options,option);
+			$.extend(true,options,option);
 
 			if(!data) $this.data("paging", data = new Paging($this,options));
 
@@ -280,10 +305,13 @@
 	$.fn.paging = Plugin;
 	$.fn.paging.Constructor = Paging;	
 }(jQuery);
+
+
 	//调用方法
 	$("#paging").paging({
 		pageSize: 10,
 		total: 210,
+		number: 3,
 		isShowNum: true,
 		callback: function(){
 			//alert("发送请求");
