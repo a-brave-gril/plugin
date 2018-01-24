@@ -1,24 +1,24 @@
 <style>
-	body{
+	body {
 		position: relative;
 	}
-	.btn{
+	.btn {
 	    background-color: #fff;
 	    border: 1px solid #eee;
 	    padding: 6px 15px;
 	    border-radius: 5px;
 	}
-	.hide{
+	.hide {
 		display: none!important;
 	}
-	.btn-base{
+	.btn-base {
 		background-color: #3385ff;
 		color: #fff;
 	}
-	.btn-primary{
+	.btn-primary {
 		background-color: #fff;
 	}
-	#moael-container{
+	#moael-container {
 	    position: absolute;
 	    top: 0;
 	    bottom: 0;
@@ -26,7 +26,7 @@
 	    right: 0;
 	    background: rgba(0,0,0,0.3);
 	}
-	.modal-content{
+	.modal-content {
         width: 30%;
 	    margin: 8% auto;
 	    border: 1px solid #fff;
@@ -34,21 +34,21 @@
 	    background-color: #fff;
 	    position: relative;
 	}
-	.close{
+	.close {
 		position: absolute;
 	    right: 2px;
 	    border: none;
 	}
-	.modal-title{
+	.modal-title {
 	    padding: 6px 0 6px 10px;
     	border-bottom: 1px solid #eee;
 	}
-	.modal-body{
+	.modal-body {
 	    padding: 20px 10px;
 	    border-bottom: 1px solid #eee;
 	    margin-bottom: 15px;
 	}
-	.modal-footer{
+	.modal-footer {
 		text-align: center;
 	}
 </style>
@@ -75,7 +75,13 @@
 <script src="http://cdn.static.runoob.com/libs/jquery/1.10.2/jquery.min.js"></script>
 <script>
 	+function($){
-
+		/**
+		* 函数描述	
+		* @param {string} {
+				* type：定义弹窗是打开还是关闭
+				* callback: 定义当点击“确定”或者“取消时” 执行的函数
+			}
+		*/
 		//找到点击元素的祖先元素，以便对其操作
 		var findParent = function(e){
 
@@ -165,15 +171,7 @@
 		$.fn.modal.Constructor = Modal;
 		
 	}(jQuery)
-
-
-
-	
-	/*
-	* 调用插件  参数介绍
-	* type：定义弹窗是打开还是关闭
-	* callback: 定义当点击“确定”或者“取消时” 执行的函数
-	*/
+	// 调用插件
 	$('.show').on("click",function(){
 		$('.modal-content').modal({
 			type: 'open', 
