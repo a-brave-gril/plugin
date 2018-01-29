@@ -69,6 +69,7 @@
 				<button class="btn-submit btn btn-primary">否</button>
 			</div>
 		</div>
+
 	</div>
 
 </div>
@@ -82,36 +83,35 @@
 				* callback: 定义当点击“确定”或者“取消时” 执行的函数
 			}
 		*/
-		//找到点击元素的祖先元素，以便对其操作
-		var findParent = function(e){
-
-			if(!e || e.length == 0) return;
-
+		var addHide = function(e){
 			var $this = $(e.target);
-			var parent = $this.closest(".modal-content");
+			var parent = $(e.delegateTarget);
 			var ancestors = $this.closest('#moael-container');
 			parent.addClass("hide");
 			ancestors.addClass("hide");
-		}
 
-		// 定义点击“X”关闭弹窗事件
+		}
+		// 定义点击确认关闭弹窗事件
 		Modal.prototype.close = function(e){
-			findParent(e);
+			addHide(e)
+			if(typeof e.data == 'string') return
+
+			e.data.confirmCallback();
 		}
 
-		// 定义点击“确定”或者“取消”事件，可以传callback
+		// 定义点击取消事件，可以传callback
 		Modal.prototype.cancel = function(e){
-			findParent(e);
+			addHide(e);
 
 			if(typeof e.data == 'string') return
 
-			e.data.callback();
+			e.data.cancelCallback();
 		}
 
 		// 定义打开弹窗事件
-		Modal.prototype.open = function(el){
+		Modal.prototype.open = function(){
 
-			$this = $(el);
+			$this = this.$el;
 			var parent = $this.closest('#moael-container');
 
 			if($this.length == 0) return;
@@ -124,28 +124,24 @@
 		}
 
 		// 为找到的元素绑定事件
-		Modal.prototype.addEvent = function(el,options){
-
-			if(options && typeof options == "string"){
-				this[options](el);
-			}else if(options.type){
+		Modal.prototype.triggerEvent = function(options){
+			var $el = this.$el; 
+			if(options.type){
 				var type = options.type;
-				this[type](el);
+				this[type]();
 			}else{
-				if($(el).length == 0 || !$(el).hasClass(hide)) return
-				this.open(el);
+				if($el.length == 0 || !$el.hasClass("hide")) return
+				this.open();
 			}
 
 		}
 
 		// 定义modal构造函数
 		function Modal(el,options){
-			var $this = $(el);
-			el = $(el);
-			event.stopPropagation();
-			$this.on("click",".close",this.close);
-			$this.on("click",".btn-submit",options,this.cancel);
-			this.addEvent(el,options);
+			var $el = this.$el = $(el);
+			this.$el.on("click",".close",options,this.close);
+			this.$el.on("click",".btn-submit",options,this.cancel);
+			this.triggerEvent(options);
 		}
 
 		function Plugin(options){
@@ -155,12 +151,10 @@
 
 				if(!data) {
 					$this.data("modal",data = new Modal($this,options))
-				}else{
-					data.addEvent($this,options);
 				}
 
 				if(typeof options == 'string') {
-					data[options].call($this)
+					data[options]();
 				}
 
 			});
@@ -171,14 +165,19 @@
 		$.fn.modal.Constructor = Modal;
 		
 	}(jQuery)
-	// 调用插件
+	//调用插件
 	$('.show').on("click",function(){
 		$('.modal-content').modal({
 			type: 'open', 
-			callback: function(){
-				alert("插件测试");
+			confirmCallback: function(){
+				alert("确认");
+			},
+			cancelCallback: function(){
+				alert("取消");
 			}
 		});
 	});
-	
+	// $('.show').on("click",function(){
+	// 	$('.modal-content').modal("open");
+	// });
 </script>
